@@ -42,8 +42,10 @@ jobs:
 
       - name: Build for GitHub Pages
         run: |
-          pnpm exec vite build --base=/edu-equity-match/
+          pnpm build
           cp dist/index.html dist/404.html
+        env:
+          BASE_PATH: /edu-equity-match/
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
