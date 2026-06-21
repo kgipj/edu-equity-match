@@ -4,6 +4,7 @@ import { Field, SuccessPanel } from '../components/FormFields'
 import { TaskCard } from '../components/TaskCard'
 import { statusClass } from '../constants'
 import { useData } from '../context/DataContext'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 const initialApplication = { studentName: '', contact: '', skill: '', reason: '' }
 
@@ -16,6 +17,7 @@ export function TaskDetailPage() {
   const [form, setForm] = useState(initialApplication)
   const related = useMemo(() => task ? tasks.filter((item) => item.id !== task.id && item.skills.some((skill) => task.skills.includes(skill))).slice(0, 2) : [], [task, tasks])
   const set = (key, value) => setForm((current) => ({ ...current, [key]: value }))
+  useDocumentTitle(task ? task.title : '找不到任務')
 
   if (!task) return <section className="not-found container"><span>找不到任務</span><h1>這個任務可能已經移除</h1><Link className="button button-primary" to="/tasks">回任務列表</Link></section>
 

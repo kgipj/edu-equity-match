@@ -4,6 +4,7 @@ import { Field, RadioCards, SkillPicker, SuccessPanel } from '../components/Form
 import { PageHero } from '../components/PageHero'
 import { TASK_MODES, TASK_STATUSES } from '../constants'
 import { useData } from '../context/DataContext'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 const initialForm = {
   title: '', organization: '', summary: '', details: '', skills: [], mode: '線上',
@@ -11,6 +12,7 @@ const initialForm = {
 }
 
 export function TaskFormPage() {
+  useDocumentTitle('發布任務')
   const { createTask } = useData()
   const [form, setForm] = useState(initialForm)
   const [created, setCreated] = useState(null)

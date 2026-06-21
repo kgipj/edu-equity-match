@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Field, RadioCards, SkillPicker, SuccessPanel } from '../components/FormFields'
 import { PageHero } from '../components/PageHero'
 import { useData } from '../context/DataContext'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 const initialForm = {
   name: '', school: '', identity: '大學生', background: '', skills: [], bio: '',
@@ -10,6 +11,7 @@ const initialForm = {
 }
 
 export function StudentFormPage() {
+  useDocumentTitle('登錄專長')
   const { createStudent } = useData()
   const [form, setForm] = useState(initialForm)
   const [submitted, setSubmitted] = useState(false)
