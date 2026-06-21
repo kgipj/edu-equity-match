@@ -24,4 +24,20 @@ describe('LocalStorageRepository', () => {
     expect(repository.getTask(first.id).status).toBe('已結束')
     expect(repository.getTask(second.id).status).toBe(second.status)
   })
+
+  it('returns an empty list when stored data is corrupted instead of throwing', () => {
+    const storage = new MemoryStorage()
+    storage.setItem('edu_equity_tasks_v1', '{ this is not valid json')
+    const repository = new LocalStorageRepository(storage)
+    expect(repository.getTasks()).toEqual([])
+  })
+
+  it('survives a storage that rejects writes (e.g. quota exceeded)', () => {
+    const storage = new MemoryStorage()
+    storage.setItem = () => { throw new Error('QuotaExceededError') }
+    expect(() => {
+      const repository = new LocalStorageRepository(storage)
+      repository.createTask({ title: '測試任務', skills: ['網站協助'] })
+    }).not.toThrow()
+  })
 })

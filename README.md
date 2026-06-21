@@ -27,32 +27,46 @@
 
 ## 安裝與啟動
 
-需要 Node.js 20.19 以上版本。
+需要 Node.js 20.19 以上版本（CI 與 `.nvmrc` 使用 Node 22），套件管理器為 pnpm。
 
 ```bash
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 瀏覽器開啟 <http://localhost:5173>。
+
+### 用 WSL2 / Docker 開發（建議）
+
+本專案的 CI 與部署環境是 Linux（ubuntu）。在 Windows 上建議於 **WSL2** 內開發，並把專案放在 Linux 檔案系統（如 `~/projects/…`）以獲得正常的 HMR 與效能。或直接用 Docker 取得對齊 CI 的環境：
+
+```bash
+docker compose up   # http://localhost:5173
+```
 
 ## 測試與正式建置
 
 ```bash
 # 資料層測試
-npm test
+pnpm test
 
 # 程式碼檢查
-npm run lint
+pnpm lint
 
-# 產生正式版靜態檔案
-npm run build
+# 產生正式版靜態檔案（預設 base 為 /）
+pnpm build
 
 # 本機預覽正式版
-npm run preview
+pnpm preview
 ```
 
 建置結果會放在 `dist/`，可直接部署至 Vercel、Netlify、Cloudflare Pages 或任何靜態網站服務。
+
+部署到 GitHub Pages 這類子路徑時，用環境變數設定 base（CI 已自動帶入）：
+
+```bash
+BASE_PATH=/edu-equity-match/ pnpm build
+```
 
 ## 示範操作
 
