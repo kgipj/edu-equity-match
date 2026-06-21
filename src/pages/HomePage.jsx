@@ -2,9 +2,11 @@ import { Link } from 'react-router-dom'
 import { SKILLS } from '../constants'
 import { useData } from '../context/DataContext'
 import { TaskCard } from '../components/TaskCard'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 export function HomePage() {
   const { tasks } = useData()
+  useDocumentTitle()
   const recentTasks = tasks.filter((task) => task.status === '招募中').slice(0, 3)
 
   return (

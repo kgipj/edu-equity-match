@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'
 import { PageHero } from '../components/PageHero'
 import { TASK_STATUSES, statusClass } from '../constants'
 import { useData } from '../context/DataContext'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
+import { formatDate } from '../utils/formatDate'
 
 const tabs = [
   { id: 'tasks', label: '任務名單' },
@@ -10,9 +12,8 @@ const tabs = [
   { id: 'applications', label: '報名紀錄' },
 ]
 
-const formatDate = (value) => new Intl.DateTimeFormat('zh-TW', { month: 'numeric', day: 'numeric' }).format(new Date(value))
-
 export function AdminPage() {
+  useDocumentTitle('簡易管理')
   const { tasks, students, applications, updateTaskStatus, resetData } = useData()
   const [tab, setTab] = useState('tasks')
   const [query, setQuery] = useState('')
