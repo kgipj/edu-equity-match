@@ -1,0 +1,15 @@
+# 本機開發：docker compose up
+# 開發伺服器會在 http://localhost:5173 提供服務。
+services:
+  web:
+    build: .
+    ports:
+      - "5173:5173"
+    volumes:
+      # 掛載原始碼以支援熱更新；node_modules 用匿名 volume 隔離，避免被 host 覆蓋
+      - .:/app
+      - /app/node_modules
+    command: pnpm dev --host 0.0.0.0
+    environment:
+      # WSL2/Docker 跨檔案系統時，檔案監看有時需要輪詢才可靠
+      CHOKIDAR_USEPOLLING: "true"
