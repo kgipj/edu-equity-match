@@ -4,8 +4,10 @@ import { PageHero } from '../components/PageHero'
 import { TaskCard } from '../components/TaskCard'
 import { SKILLS, TASK_MODES } from '../constants'
 import { useData } from '../context/DataContext'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
 
 export function TasksPage() {
+  useDocumentTitle('探索任務')
   const { tasks } = useData()
   const [params, setParams] = useSearchParams()
   const skill = params.get('skill') || '全部專長'
