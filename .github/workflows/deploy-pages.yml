@@ -41,7 +41,9 @@ jobs:
           pnpm test
 
       - name: Build for GitHub Pages
-        run: pnpm exec vite build --base=/edu-equity-match/
+        run: |
+          pnpm exec vite build --base=/edu-equity-match/
+          cp dist/index.html dist/404.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
