@@ -18,7 +18,7 @@ export function HomePage() {
             <p>設計、剪輯、社群、資料、程式——每一種能力，都可能正是教育現場需要的那一塊。從一個適合你的任務開始，把關心變成真實行動。</p>
             <div className="hero-actions">
               <Link className="button button-primary" to="/students/new">我是想幫忙的人 <span>→</span></Link>
-              <Link className="button button-secondary" to="/tasks/new">我是需要幫忙的人 <span>↗</span></Link>
+              <Link className="button button-secondary" to="/tasks/new">我是需要協助的人 <span>↗</span></Link>
             </div>
             <div className="hero-proof">
               <div className="avatar-stack"><span>禾</span><span>宇</span><span>庭</span><span>＋</span></div>
