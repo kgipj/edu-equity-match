@@ -107,6 +107,18 @@ export function HomePage() {
         </div>
       </section>
 
+      <section className="section tft-section">
+        <div className="container tft-card">
+          <div className="tft-mark" aria-hidden="true"><strong>TFT</strong><span>Teach For Taiwan</span></div>
+          <div className="tft-copy">
+            <p className="eyebrow">延伸認識教育平權</p>
+            <h2>從理解問題開始，走近 TFT</h2>
+            <p>想更深入了解教育不平等與 TFT 的行動嗎？前往官方網站，認識更多故事、計畫與參與方式。</p>
+          </div>
+          <a className="button tft-button" href="https://www.teach4taiwan.org" target="_blank" rel="noopener noreferrer">前往 TFT 官網 <span>↗</span></a>
+        </div>
+      </section>
+
       <section className="cta-section">
         <div className="container cta-card">
           <div><p className="eyebrow light">你的能力，值得被需要</p><h2>準備好用專長，<br />讓教育多一種可能了嗎？</h2></div>
