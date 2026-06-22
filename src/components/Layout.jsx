@@ -14,9 +14,9 @@ export function Layout() {
     <div className="site-shell">
       <header className="site-header">
         <div className="container nav-wrap">
-          <Link className="brand" to="/" onClick={() => setMenuOpen(false)} aria-label="共學力首頁">
+          <Link className="brand" to="/" onClick={() => setMenuOpen(false)} aria-label="教育平權青年專長媒合平台首頁">
             <span className="brand-mark" aria-hidden="true"><i /><i /><i /></span>
-            <span><strong>共學力</strong><small>青年專長 × 教育平權</small></span>
+            <span><strong>教育平權</strong><small>青年專長媒合平台</small></span>
           </Link>
           <button className="menu-button" type="button" aria-label="切換導覽選單" aria-expanded={menuOpen} onClick={() => setMenuOpen(!menuOpen)}>
             <span /><span /><span />
@@ -33,7 +33,7 @@ export function Layout() {
       <footer className="site-footer">
         <div className="container footer-grid">
           <div>
-            <div className="footer-brand">共學力</div>
+            <div className="footer-brand">教育平權青年專長媒合平台</div>
             <p>讓青年不只關心，更能用自己的專長參與教育平權。</p>
           </div>
           <div className="footer-links">

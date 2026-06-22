@@ -17,7 +17,7 @@ export function HomePage() {
             <h1>不一定要當老師，<br />也能參與<span>教育平權。</span></h1>
             <p>設計、剪輯、社群、資料、程式——每一種能力，都可能正是教育現場需要的那一塊。從一個適合你的任務開始，把關心變成真實行動。</p>
             <div className="hero-actions">
-              <Link className="button button-primary" to="/students/new">我是想幫忙的學生 <span>→</span></Link>
+              <Link className="button button-primary" to="/students/new">我是想幫忙的人 <span>→</span></Link>
               <Link className="button button-secondary" to="/tasks/new">我是需要協助的單位 <span>↗</span></Link>
             </div>
             <div className="hero-proof">
@@ -56,7 +56,7 @@ export function HomePage() {
           </div>
           <div className="skill-grid">
             {SKILLS.slice(0, 8).map((skill, index) => (
-              <Link className={`skill-card skill-color-${(index % 4) + 1}`} to={`/tasks?skill=${encodeURIComponent(skill.name)}`} key={skill.name}>
+              <Link className={`skill-card skill-color-${(index % 4) + 1}${skill.name === '課輔陪伴' ? ' skill-card-priority' : ''}`} to={`/tasks?skill=${encodeURIComponent(skill.name)}`} key={skill.name}>
                 <span className="skill-card-icon">{skill.icon}</span>
                 <div><strong>{skill.name}</strong><small>{skill.description}</small></div>
                 <span className="skill-arrow">↗</span>
