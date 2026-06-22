@@ -24,6 +24,12 @@ export class LocalStorageRepository {
     Object.entries(KEYS).forEach(([type, key]) => {
       if (!this.storage.getItem(key)) this.storage.setItem(key, JSON.stringify(defaults[type]))
     })
+
+    // Add new demo tasks without erasing tasks or applications people created locally.
+    const storedTasks = this.read('tasks')
+    const storedTaskIds = new Set(storedTasks.map((task) => task.id))
+    const missingTasks = seedTasks.filter((task) => !storedTaskIds.has(task.id))
+    if (missingTasks.length) this.write('tasks', [...missingTasks, ...storedTasks])
   }
 
   read(type) {

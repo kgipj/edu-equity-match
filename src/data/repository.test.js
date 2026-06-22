@@ -24,4 +24,16 @@ describe('LocalStorageRepository', () => {
     expect(repository.getTask(first.id).status).toBe('已結束')
     expect(repository.getTask(second.id).status).toBe(second.status)
   })
+
+  it('adds newly seeded tasks without deleting locally created tasks', () => {
+    const storage = new MemoryStorage()
+    storage.setItem('edu_equity_tasks_v1', JSON.stringify([{ id: 'local-task', title: '自訂任務' }]))
+
+    const repository = new LocalStorageRepository(storage)
+    const taskIds = repository.getTasks().map((task) => task.id)
+
+    expect(taskIds).toContain('task-tutoring-reading')
+    expect(taskIds).toContain('task-tutoring-math')
+    expect(taskIds).toContain('local-task')
+  })
 })
