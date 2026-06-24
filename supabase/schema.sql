@@ -77,6 +77,17 @@ alter table public.tasks enable row level security;
 alter table public.students enable row level security;
 alter table public.applications enable row level security;
 
+grant usage on schema public to anon, authenticated;
+
+grant select, insert on public.tasks to anon, authenticated;
+grant update, delete on public.tasks to authenticated;
+
+grant insert on public.students to anon, authenticated;
+grant select, update, delete on public.students to authenticated;
+
+grant insert on public.applications to anon, authenticated;
+grant select, update, delete on public.applications to authenticated;
+
 drop policy if exists "Tasks are publicly readable" on public.tasks;
 create policy "Tasks are publicly readable"
 on public.tasks for select
