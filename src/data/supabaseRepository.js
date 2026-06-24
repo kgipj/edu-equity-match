@@ -127,12 +127,16 @@ export class SupabaseRepository {
   }
 
   async getStudents() {
+    const session = await this.getAuthSession()
+    if (!session) return []
     const { data, error } = await this.client.from('students').select('*').order('created_at', { ascending: false })
     raise(error)
     return noRows(data).map(fromStudent)
   }
 
   async getApplications() {
+    const session = await this.getAuthSession()
+    if (!session) return []
     const { data, error } = await this.client.from('applications').select('*').order('created_at', { ascending: false })
     raise(error)
     return noRows(data).map(fromApplication)
