@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, NavLink, Outlet } from 'react-router-dom'
+import { useData } from '../context/DataContext'
 
 const navItems = [
   { to: '/tasks', label: '探索任務' },
@@ -9,6 +10,7 @@ const navItems = [
 ]
 
 export function Layout() {
+  const { backend } = useData()
   const [menuOpen, setMenuOpen] = useState(false)
   return (
     <div className="site-shell">
@@ -38,12 +40,12 @@ export function Layout() {
           </div>
           <div className="footer-links">
             <div><strong>開始參與</strong><Link to="/tasks">探索任務</Link><Link to="/students/new">登錄專長</Link></div>
-            <div><strong>合作單位</strong><Link to="/tasks/new">發布任務</Link><Link to="/admin">管理資料</Link></div>
+            <div><strong>合作單位</strong><Link to="/tasks/new">發布任務</Link><Link to="/admin">管理資料</Link><Link to="/privacy">隱私權與個資告知</Link></div>
           </div>
         </div>
         <div className="container footer-bottom">
           <span>Impact Star 2026 MVP Prototype</span>
-          <span>資料僅儲存在此瀏覽器</span>
+          <span>{backend === 'supabase' ? 'Supabase 後端資料庫模式' : '資料僅儲存在此瀏覽器'}</span>
         </div>
       </footer>
     </div>

@@ -1,29 +1,39 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Field, RadioCards, SkillPicker, SuccessPanel } from '../components/FormFields'
+import { Field, PrivacyConsent, RadioCards, SkillPicker, SuccessPanel } from '../components/FormFields'
 import { PageHero } from '../components/PageHero'
 import { useData } from '../context/DataContext'
 
 const initialForm = {
   name: '', school: '', identity: '大學生', background: '', skills: [], bio: '',
-  availability: '', contact: '', needsHours: false, isPublic: true,
+  availability: '', contact: '', needsHours: false, isPublic: true, privacyConsent: false,
 }
 
 export function StudentFormPage() {
-  const { createStudent } = useData()
+  const { backend, createStudent } = useData()
   const [form, setForm] = useState(initialForm)
   const [submitted, setSubmitted] = useState(false)
   const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
   const set = (key, value) => setForm((current) => ({ ...current, [key]: value }))
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
+    setError('')
     if (!form.skills.length) { setError('請至少選擇一項可提供的協助類型。'); return }
-    createStudent(form)
-    setSubmitted(true)
+    if (!form.privacyConsent) { setError('請先勾選個人資料蒐集、處理及利用告知事項。'); return }
+    setSaving(true)
+    try {
+      await createStudent(form)
+      setSubmitted(true)
+    } catch (submitError) {
+      setError(submitError.message || '送出失敗，請稍後再試。')
+    } finally {
+      setSaving(false)
+    }
   }
 
-  if (submitted) return <div className="form-success-wrap container"><SuccessPanel title="你的專長已登錄！" action={<div className="success-actions"><Link className="button button-primary" to="/tasks">探索適合的任務</Link><button className="button button-ghost" type="button" onClick={() => { setForm(initialForm); setSubmitted(false) }}>再登錄一位</button></div>}>平台已把你的資料保存在這台裝置。接下來，找一個讓能力真正被需要的任務吧。</SuccessPanel></div>
+  if (submitted) return <div className="form-success-wrap container"><SuccessPanel title="你的專長已登錄！" action={<div className="success-actions"><Link className="button button-primary" to="/tasks">探索適合的任務</Link><button className="button button-ghost" type="button" onClick={() => { setForm(initialForm); setSubmitted(false) }}>再登錄一位</button></div>}>{backend === 'supabase' ? '資料已送到雲端後端，管理者登入後可以在後台查看。' : '平台已把你的資料保存在這台裝置。'}接下來，找一個讓能力真正被需要的任務吧。</SuccessPanel></div>
 
   return (
     <>
@@ -50,7 +60,6 @@ export function StudentFormPage() {
             <div className="form-card">
               <div className="form-card-heading"><span>02</span><div><h2>你的能力與時間</h2><p>選擇你想貢獻的方式，可以跨出原本的科系標籤。</p></div></div>
               <SkillPicker value={form.skills} onChange={(value) => { set('skills', value); setError('') }} required />
-              {error && <p className="form-error" role="alert">{error}</p>}
               <div className="form-grid form-grid-spaced">
                 <Field label="自我介紹" required full hint="可說說你做過什麼、想學什麼，或為何關心教育平權。"><textarea required rows="5" value={form.bio} onChange={(e) => set('bio', e.target.value)} placeholder="用 2－4 句話介紹自己…" /></Field>
                 <Field label="可投入時間" required full><input required value={form.availability} onChange={(e) => set('availability', e.target.value)} placeholder="例如：7－8 月，每週 3 小時；平日晚間" /></Field>
@@ -62,9 +71,11 @@ export function StudentFormPage() {
                 <Field label="聯絡方式" required full hint="Email、電話或 LINE ID 皆可，請填寫可實際聯絡到你的方式。"><input required value={form.contact} onChange={(e) => set('contact', e.target.value)} placeholder="例如：hello@example.com" /></Field>
                 <label className="switch-row field-full"><div><strong>我需要志工服務時數</strong><small>這只是媒合偏好，不會影響參與資格。</small></div><input type="checkbox" checked={form.needsHours} onChange={(e) => set('needsHours', e.target.checked)} /><span className="switch" /></label>
                 <Field label="是否願意公開專長卡片" required full><RadioCards name="isPublic" options={['願意公開', '暫不公開']} value={form.isPublic ? '願意公開' : '暫不公開'} onChange={(value) => set('isPublic', value === '願意公開')} /></Field>
+                <PrivacyConsent checked={form.privacyConsent} onChange={(value) => { set('privacyConsent', value); setError('') }} />
               </div>
             </div>
-            <div className="submit-row"><p>送出即表示你理解：本 MVP 資料只保存在目前瀏覽器。</p><button className="button button-primary" type="submit">完成專長登錄 <span>→</span></button></div>
+            {error && <p className="form-error" role="alert">{error}</p>}
+            <div className="submit-row"><p>{backend === 'supabase' ? '後端模式：資料會送到 Supabase 雲端資料庫。' : '展示模式：資料只保存在目前瀏覽器。'}</p><button className="button button-primary" type="submit" disabled={saving}>{saving ? '送出中…' : '完成專長登錄'} <span>→</span></button></div>
           </form>
         </div>
       </section>

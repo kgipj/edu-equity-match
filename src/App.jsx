@@ -7,6 +7,7 @@ import { TaskDetailPage } from './pages/TaskDetailPage'
 import { StudentFormPage } from './pages/StudentFormPage'
 import { TaskFormPage } from './pages/TaskFormPage'
 import { AdminPage } from './pages/AdminPage'
+import { PrivacyPage } from './pages/PrivacyPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 
 function ScrollToTop() {
@@ -27,6 +28,7 @@ export function App() {
           <Route path="students/new" element={<StudentFormPage />} />
           <Route path="tasks/new" element={<TaskFormPage />} />
           <Route path="admin" element={<AdminPage />} />
+          <Route path="privacy" element={<PrivacyPage />} />
           <Route path="home" element={<Navigate to="/" replace />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

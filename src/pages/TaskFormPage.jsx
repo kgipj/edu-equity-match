@@ -1,28 +1,38 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Field, RadioCards, SkillPicker, SuccessPanel } from '../components/FormFields'
+import { Field, PrivacyConsent, RadioCards, SkillPicker, SuccessPanel } from '../components/FormFields'
 import { PageHero } from '../components/PageHero'
 import { TASK_MODES, TASK_STATUSES } from '../constants'
 import { useData } from '../context/DataContext'
 
 const initialForm = {
   title: '', organization: '', summary: '', details: '', skills: [], mode: '線上',
-  time: '', volunteerHours: false, contact: '', status: '招募中', location: '',
+  time: '', volunteerHours: false, contact: '', status: '招募中', location: '', privacyConsent: false,
 }
 
 export function TaskFormPage() {
-  const { createTask } = useData()
+  const { backend, createTask } = useData()
   const [form, setForm] = useState(initialForm)
   const [created, setCreated] = useState(null)
   const [error, setError] = useState('')
+  const [saving, setSaving] = useState(false)
   const set = (key, value) => setForm((current) => ({ ...current, [key]: value }))
-  const submit = (event) => {
+  const submit = async (event) => {
     event.preventDefault()
+    setError('')
     if (!form.skills.length) { setError('請至少選擇一項需要的專長。'); return }
-    setCreated(createTask(form))
+    if (!form.privacyConsent) { setError('請先勾選個人資料蒐集、處理及利用告知事項。'); return }
+    setSaving(true)
+    try {
+      setCreated(await createTask(form))
+    } catch (submitError) {
+      setError(submitError.message || '發布失敗，請稍後再試。')
+    } finally {
+      setSaving(false)
+    }
   }
 
-  if (created) return <div className="form-success-wrap container"><SuccessPanel title="任務已發布！" action={<div className="success-actions"><Link className="button button-primary" to={`/tasks/${created.id}`}>查看任務頁</Link><button className="button button-ghost" type="button" onClick={() => { setForm(initialForm); setCreated(null) }}>再發布一項</button></div>}>青年現在可以在任務列表看到這項需求。記得安排清楚的合作窗口與回饋節點。</SuccessPanel></div>
+  if (created) return <div className="form-success-wrap container"><SuccessPanel title="任務已發布！" action={<div className="success-actions"><Link className="button button-primary" to={`/tasks/${created.id}`}>查看任務頁</Link><button className="button button-ghost" type="button" onClick={() => { setForm(initialForm); setCreated(null) }}>再發布一項</button></div>}>{backend === 'supabase' ? '任務已寫入雲端後端。' : '任務已保存在這台裝置。'}青年現在可以在任務列表看到這項需求。記得安排清楚的合作窗口與回饋節點。</SuccessPanel></div>
 
   return (
     <>
@@ -44,7 +54,6 @@ export function TaskFormPage() {
             <div className="form-card">
               <div className="form-card-heading"><span>02</span><div><h2>需要的專長</h2><p>請選真正必要的能力，避免把一個任務包成一人公司。</p></div></div>
               <SkillPicker value={form.skills} onChange={(value) => { set('skills', value); setError('') }} required />
-              {error && <p className="form-error" role="alert">{error}</p>}
             </div>
             <div className="form-card">
               <div className="form-card-heading"><span>03</span><div><h2>參與方式與聯絡</h2><p>資訊越透明，雙方越容易建立好的合作期待。</p></div></div>
@@ -54,9 +63,11 @@ export function TaskFormPage() {
                 <Field label="實體地點"><input value={form.location} onChange={(e) => set('location', e.target.value)} placeholder={form.mode === '線上' ? '不限地區' : '縣市與區域'} /></Field>
                 <Field label="聯絡方式" required full><input required value={form.contact} onChange={(e) => set('contact', e.target.value)} placeholder="Email、電話或其他公務聯絡方式" /></Field>
                 <label className="switch-row field-full"><div><strong>提供志工服務時數</strong><small>請確認單位有能力核實並開立證明。</small></div><input type="checkbox" checked={form.volunteerHours} onChange={(e) => set('volunteerHours', e.target.checked)} /><span className="switch" /></label>
+                <PrivacyConsent checked={form.privacyConsent} onChange={(value) => { set('privacyConsent', value); setError('') }} label="我已確認任務聯絡資訊可用於平台媒合與青年聯繫" />
               </div>
             </div>
-            <div className="submit-row"><p>送出後仍可在簡易管理頁切換任務狀態。</p><button className="button button-primary" type="submit">發布這項任務 <span>→</span></button></div>
+            {error && <p className="form-error" role="alert">{error}</p>}
+            <div className="submit-row"><p>{backend === 'supabase' ? '後端模式：任務會發布到所有人共用的雲端任務列表。' : '展示模式：送出後仍可在簡易管理頁切換任務狀態。'}</p><button className="button button-primary" type="submit" disabled={saving}>{saving ? '發布中…' : '發布這項任務'} <span>→</span></button></div>
           </form>
         </div>
       </section>

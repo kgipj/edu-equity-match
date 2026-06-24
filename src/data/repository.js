@@ -1,4 +1,8 @@
 import { seedApplications, seedStudents, seedTasks } from './seed'
+import { getBackendConfig } from './backendConfig'
+import { getSupabaseClient } from './supabaseClient'
+import { SupabaseRepository } from './supabaseRepository'
+import { clone, makeId } from './recordUtils'
 
 const KEYS = {
   tasks: 'edu_equity_tasks_v1',
@@ -6,16 +10,15 @@ const KEYS = {
   applications: 'edu_equity_applications_v1',
 }
 
-const clone = (value) => JSON.parse(JSON.stringify(value))
-const makeId = (prefix) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
-
 /**
  * localStorage implementation of the platform data contract.
- * A future Supabase/Firebase adapter only needs to expose the same methods.
+ * Supabase/Firebase adapters only need to expose the same methods.
  */
 export class LocalStorageRepository {
   constructor(storage = window.localStorage) {
     this.storage = storage
+    this.backend = 'localStorage'
+    this.canReset = true
     this.seed()
   }
 
@@ -76,4 +79,8 @@ export class LocalStorageRepository {
   }
 }
 
-export const createRepository = (storage) => new LocalStorageRepository(storage)
+export const createRepository = (storage) => {
+  const config = getBackendConfig()
+  if (config.backend === 'supabase') return new SupabaseRepository(getSupabaseClient(config))
+  return new LocalStorageRepository(storage)
+}

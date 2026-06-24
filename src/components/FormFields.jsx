@@ -1,4 +1,5 @@
 import { SKILLS } from '../constants'
+import { Link } from 'react-router-dom'
 
 export function Field({ label, required, hint, children, full = false }) {
   return (
@@ -51,5 +52,21 @@ export function SuccessPanel({ title, children, action }) {
       <p>{children}</p>
       {action}
     </section>
+  )
+}
+
+export function PrivacyConsent({ checked, onChange, label = '我已閱讀並同意個人資料蒐集、處理及利用告知事項' }) {
+  return (
+    <label className="consent-box field-full">
+      <input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} />
+      <span className="consent-check" aria-hidden="true">✓</span>
+      <span>
+        <strong>{label}<em>*</em></strong>
+        <small>
+          本平台僅為教育平權任務媒合、聯繫與服務紀錄使用你的資料；未滿 18 歲請先取得法定代理人同意。
+          你可以到 <Link to="/privacy">隱私權與個資告知</Link> 查看完整說明。
+        </small>
+      </span>
+    </label>
   )
 }

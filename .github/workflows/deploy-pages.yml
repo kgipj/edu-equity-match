@@ -41,6 +41,10 @@ jobs:
           pnpm test
 
       - name: Build for GitHub Pages
+        env:
+          VITE_DATA_BACKEND: ${{ vars.VITE_DATA_BACKEND }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: |
           pnpm exec vite build --base=/edu-equity-match/
           cp dist/index.html dist/404.html

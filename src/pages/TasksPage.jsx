@@ -6,7 +6,7 @@ import { SKILLS, TASK_MODES } from '../constants'
 import { useData } from '../context/DataContext'
 
 export function TasksPage() {
-  const { tasks } = useData()
+  const { backend, loading, tasks } = useData()
   const [params, setParams] = useSearchParams()
   const skill = params.get('skill') || '全部專長'
   const mode = params.get('mode') || '全部形式'
@@ -36,8 +36,8 @@ export function TasksPage() {
             <label><span>任務狀態</span><select value={status} onChange={(event) => update('status', event.target.value, '招募中')}><option>招募中</option><option>已媒合</option><option>已結束</option><option>全部狀態</option></select></label>
             <button type="button" onClick={() => setParams({})}>清除篩選</button>
           </div>
-          <div className="results-bar"><p><strong>{filtered.length}</strong> 個符合條件的任務</p><span>資料會保存在這台裝置的瀏覽器中</span></div>
-          {filtered.length ? <div className="task-grid task-grid-list">{filtered.map((task) => <TaskCard task={task} key={task.id} />)}</div> : <div className="empty-state"><span>⌁</span><h2>目前沒有符合的任務</h2><p>換一個專長或參與形式看看，也可以稍後再回來。</p><button className="button button-primary" type="button" onClick={() => setParams({})}>顯示招募中任務</button></div>}
+          <div className="results-bar"><p><strong>{filtered.length}</strong> 個符合條件的任務</p><span>{backend === 'supabase' ? 'Supabase 後端資料庫' : 'localStorage 展示資料'}</span></div>
+          {loading ? <div className="empty-state"><span>⌁</span><h2>任務讀取中…</h2><p>正在從資料來源載入任務。</p></div> : filtered.length ? <div className="task-grid task-grid-list">{filtered.map((task) => <TaskCard task={task} key={task.id} />)}</div> : <div className="empty-state"><span>⌁</span><h2>目前沒有符合的任務</h2><p>換一個專長或參與形式看看，也可以稍後再回來。</p><button className="button button-primary" type="button" onClick={() => setParams({})}>顯示招募中任務</button></div>}
         </div>
       </section>
     </>

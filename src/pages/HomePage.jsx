@@ -4,7 +4,7 @@ import { useData } from '../context/DataContext'
 import { TaskCard } from '../components/TaskCard'
 
 export function HomePage() {
-  const { tasks } = useData()
+  const { loading, tasks } = useData()
   const recentTasks = tasks.filter((task) => task.status === '招募中').slice(0, 3)
 
   return (
@@ -73,9 +73,9 @@ export function HomePage() {
             <div><p className="eyebrow">近期任務</p><h2>現在，就有地方需要你</h2></div>
             <Link className="text-link" to="/tasks">查看全部任務 <span>→</span></Link>
           </div>
-          <div className="task-grid">
+          {loading ? <div className="empty-state compact"><span>⌁</span><h2>任務讀取中…</h2><p>正在從資料來源載入近期任務。</p></div> : recentTasks.length ? <div className="task-grid">
             {recentTasks.map((task, index) => <TaskCard task={task} featured={index === 0} key={task.id} />)}
-          </div>
+          </div> : <div className="empty-state compact"><span>⌁</span><h2>目前還沒有招募中任務</h2><p>可以先發布一項任務，或在 Supabase 執行 seed.sql 匯入示範任務。</p></div>}
         </div>
       </section>
 
