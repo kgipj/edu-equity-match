@@ -49,8 +49,9 @@ npm run dev
    - `supabase/schema.sql`
    - `supabase/seed.sql`（可選，匯入示範任務）
 3. 到 Authentication 建立一組管理員 Email／Password。
-4. 建議在 Supabase Auth 設定中關閉公開註冊，只保留你手動建立的管理員帳號。
-5. 複製 `.env.example` 成 `.env.local`，填入：
+4. 將該管理員的 Auth User UID 加入 `public.admin_profiles`，只有這些帳號能讀取學生名單、報名紀錄與切換任務狀態。
+5. 建議在 Supabase Auth 設定中關閉公開註冊，只保留你手動建立的管理員帳號。
+6. 複製 `.env.example` 成 `.env.local`，填入：
 
 ```bash
 VITE_DATA_BACKEND=supabase
@@ -58,7 +59,7 @@ VITE_SUPABASE_URL=你的 Supabase Project URL
 VITE_SUPABASE_ANON_KEY=你的 Supabase anon public key
 ```
 
-6. 重新啟動：
+7. 重新啟動：
 
 ```bash
 npm run dev

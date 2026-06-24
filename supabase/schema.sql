@@ -77,6 +77,30 @@ alter table public.tasks enable row level security;
 alter table public.students enable row level security;
 alter table public.applications enable row level security;
 
+create table if not exists public.admin_profiles (
+  user_id uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz not null default timezone('utc'::text, now())
+);
+
+alter table public.admin_profiles enable row level security;
+
+create or replace function public.is_admin()
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from public.admin_profiles
+    where user_id = auth.uid()
+  );
+$$;
+
+revoke all on function public.is_admin() from public;
+grant execute on function public.is_admin() to anon, authenticated;
+
 grant usage on schema public to anon, authenticated;
 
 grant select, insert on public.tasks to anon, authenticated;
@@ -87,6 +111,8 @@ grant select, update, delete on public.students to authenticated;
 
 grant insert on public.applications to anon, authenticated;
 grant select, update, delete on public.applications to authenticated;
+
+grant select on public.admin_profiles to authenticated;
 
 drop policy if exists "Tasks are publicly readable" on public.tasks;
 create policy "Tasks are publicly readable"
@@ -102,8 +128,8 @@ drop policy if exists "Authenticated admins can update tasks" on public.tasks;
 create policy "Authenticated admins can update tasks"
 on public.tasks for update
 to authenticated
-using (true)
-with check (true);
+using (public.is_admin())
+with check (public.is_admin());
 
 drop policy if exists "Anyone can register consented students" on public.students;
 create policy "Anyone can register consented students"
@@ -114,20 +140,20 @@ drop policy if exists "Authenticated admins can read students" on public.student
 create policy "Authenticated admins can read students"
 on public.students for select
 to authenticated
-using (true);
+using (public.is_admin());
 
 drop policy if exists "Authenticated admins can update students" on public.students;
 create policy "Authenticated admins can update students"
 on public.students for update
 to authenticated
-using (true)
-with check (true);
+using (public.is_admin())
+with check (public.is_admin());
 
 drop policy if exists "Authenticated admins can delete students" on public.students;
 create policy "Authenticated admins can delete students"
 on public.students for delete
 to authenticated
-using (true);
+using (public.is_admin());
 
 drop policy if exists "Anyone can apply with consent" on public.applications;
 create policy "Anyone can apply with consent"
@@ -138,17 +164,23 @@ drop policy if exists "Authenticated admins can read applications" on public.app
 create policy "Authenticated admins can read applications"
 on public.applications for select
 to authenticated
-using (true);
+using (public.is_admin());
 
 drop policy if exists "Authenticated admins can update applications" on public.applications;
 create policy "Authenticated admins can update applications"
 on public.applications for update
 to authenticated
-using (true)
-with check (true);
+using (public.is_admin())
+with check (public.is_admin());
 
 drop policy if exists "Authenticated admins can delete applications" on public.applications;
 create policy "Authenticated admins can delete applications"
 on public.applications for delete
 to authenticated
-using (true);
+using (public.is_admin());
+
+drop policy if exists "Authenticated admins can read admin profiles" on public.admin_profiles;
+create policy "Authenticated admins can read admin profiles"
+on public.admin_profiles for select
+to authenticated
+using (public.is_admin());
