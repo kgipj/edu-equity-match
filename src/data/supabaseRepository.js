@@ -155,15 +155,17 @@ export class SupabaseRepository {
   }
 
   async createStudent(student) {
-    const { data, error } = await this.client.from('students').insert(toStudent(student)).select('*').single()
+    const payload = toStudent(student)
+    const { error } = await this.client.from('students').insert(payload)
     raise(error)
-    return fromStudent(data)
+    return fromStudent({ ...payload, created_at: new Date().toISOString() })
   }
 
   async createApplication(application) {
-    const { data, error } = await this.client.from('applications').insert(toApplication(application)).select('*').single()
+    const payload = toApplication(application)
+    const { error } = await this.client.from('applications').insert(payload)
     raise(error)
-    return fromApplication(data)
+    return fromApplication({ ...payload, created_at: new Date().toISOString() })
   }
 
   async updateTaskStatus(id, status) {
