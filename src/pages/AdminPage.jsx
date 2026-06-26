@@ -19,6 +19,7 @@ export function AdminPage() {
     backend,
     canReset,
     dataError,
+    deleteStudent,
     loading,
     resetData,
     session,
@@ -30,14 +31,31 @@ export function AdminPage() {
   } = useData()
   const [tab, setTab] = useState('tasks')
   const [query, setQuery] = useState('')
+  const [actionError, setActionError] = useState('')
+  const [deletingStudentId, setDeletingStudentId] = useState('')
   const taskMap = useMemo(() => Object.fromEntries(tasks.map((task) => [task.id, task])), [tasks])
   const normalized = query.trim().toLowerCase()
   const filteredTasks = tasks.filter((item) => !normalized || `${item.title}${item.organization}${item.skills.join('')}`.toLowerCase().includes(normalized))
-  const filteredStudents = students.filter((item) => !normalized || `${item.name}${item.school}${item.skills.join('')}`.toLowerCase().includes(normalized))
+  const filteredStudents = students.filter((item) => !normalized || `${item.name}${item.school}${item.background}${item.contact}${item.skills.join('')}`.toLowerCase().includes(normalized))
   const filteredApplications = applications.filter((item) => !normalized || `${item.studentName}${item.skill}${taskMap[item.taskId]?.title || ''}`.toLowerCase().includes(normalized))
 
   const handleReset = async () => {
     if (window.confirm('確定要清除目前輸入的資料，恢復成示範內容嗎？')) await resetData()
+  }
+
+  const handleDeleteStudent = async (student) => {
+    const confirmed = window.confirm(`確定要刪除「${student.name}」的學生名單資料嗎？\n\n這只會刪除學生名單，不會刪除既有任務報名紀錄。`)
+    if (!confirmed) return
+
+    setActionError('')
+    setDeletingStudentId(student.id)
+    try {
+      await deleteStudent(student.id)
+    } catch (error) {
+      setActionError(error.message || '刪除學生資料失敗，請稍後再試。')
+    } finally {
+      setDeletingStudentId('')
+    }
   }
 
   if (backend === 'supabase' && (authLoading || !session)) {
@@ -59,20 +77,21 @@ export function AdminPage() {
       <section className="section admin-section">
         <div className="container">
           {dataError && <p className="form-error admin-message" role="alert">{dataError}</p>}
+          {actionError && <p className="form-error admin-message" role="alert">{actionError}</p>}
           <div className="backend-bar">
             <span>{backend === 'supabase' ? 'Supabase 後端模式' : 'localStorage 展示模式'}</span>
             {backend === 'supabase' && <button type="button" onClick={signOutAdmin}>登出管理員</button>}
           </div>
           <div className="admin-toolbar">
-            <div className="admin-tabs" role="tablist">{tabs.map((item) => <button type="button" role="tab" aria-selected={tab === item.id} className={tab === item.id ? 'active' : ''} onClick={() => { setTab(item.id); setQuery('') }} key={item.id}>{item.label}<span>{item.id === 'tasks' ? tasks.length : item.id === 'students' ? students.length : applications.length}</span></button>)}</div>
+            <div className="admin-tabs" role="tablist">{tabs.map((item) => <button type="button" role="tab" aria-selected={tab === item.id} className={tab === item.id ? 'active' : ''} onClick={() => { setTab(item.id); setQuery(''); setActionError('') }} key={item.id}>{item.label}<span>{item.id === 'tasks' ? tasks.length : item.id === 'students' ? students.length : applications.length}</span></button>)}</div>
             <div className="admin-actions"><label className="search-box"><span>⌕</span><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="搜尋目前名單" /></label>{canReset && <button className="reset-button" type="button" onClick={handleReset}>重設示範資料</button>}</div>
           </div>
 
           {loading && <p className="admin-loading">資料讀取中…</p>}
 
-          {tab === 'tasks' && <div className="admin-table-wrap"><table><thead><tr><th>任務</th><th>需要專長</th><th>形式</th><th>報名</th><th>狀態</th><th /></tr></thead><tbody>{filteredTasks.map((task) => <tr key={task.id}><td data-label="任務"><strong>{task.title}</strong><small>{task.organization}</small></td><td data-label="需要專長"><div className="tag-row">{task.skills.map((skill) => <span className="skill-tag" key={skill}>{skill}</span>)}</div></td><td data-label="形式">{task.mode}</td><td data-label="報名">{applications.filter((item) => item.taskId === task.id).length} 人</td><td data-label="狀態"><select className={`status-select ${statusClass(task.status)}`} value={task.status} onChange={(e) => updateTaskStatus(task.id, e.target.value)}>{TASK_STATUSES.map((status) => <option key={status}>{status}</option>)}</select></td><td><Link to={`/tasks/${task.id}`} aria-label={`查看${task.title}`}>↗</Link></td></tr>)}</tbody></table>{!filteredTasks.length && <Empty />}</div>}
+          {tab === 'tasks' && <div className="admin-table-wrap"><table><thead><tr><th>任務</th><th>需要專長</th><th>形式</th><th>報名</th><th>狀態</th><th /></tr></thead><tbody>{filteredTasks.map((task) => <tr key={task.id}><td data-label="任務"><strong>{task.title}</strong><small>{task.organization}</small></td><td data-label="需要專長"><div className="tag-row">{task.skills.map((skill) => <span className="skill-tag" key={skill}>{skill}</span>)}</div></td><td data-label="形式">{task.mode}</td><td data-label="報名">{applications.filter((item) => item.taskId === task.id).length} 人</td><td data-label="狀態"><select className={`status-select ${statusClass(task.status)}`} value={task.status} onChange={(e) => updateTaskStatus(task.id, e.target.value)}>{TASK_STATUSES.map((status) => <option key={status}>{status}</option>)}</select></td><td className="task-link-cell"><Link to={`/tasks/${task.id}`} aria-label={`查看${task.title}`}>↗</Link></td></tr>)}</tbody></table>{!filteredTasks.length && <Empty />}</div>}
 
-          {tab === 'students' && <div className="admin-table-wrap"><table><thead><tr><th>學生</th><th>身分／背景</th><th>專長</th><th>可投入時間</th><th>偏好</th><th>聯絡</th></tr></thead><tbody>{filteredStudents.map((student) => <tr key={student.id}><td data-label="學生"><strong>{student.name}</strong><small>{student.school}</small></td><td data-label="背景">{student.identity}<small>{student.background}</small></td><td data-label="專長"><div className="tag-row">{student.skills.map((skill) => <span className="skill-tag" key={skill}>{skill}</span>)}</div></td><td data-label="可投入時間">{student.availability}</td><td data-label="偏好"><span>{student.needsHours ? '需要時數' : '不需時數'}</span><small>{student.isPublic ? '願意公開' : '不公開'}</small></td><td data-label="聯絡"><span className="contact-cell">{student.contact}</span></td></tr>)}</tbody></table>{!filteredStudents.length && <Empty />}</div>}
+          {tab === 'students' && <div className="admin-table-wrap"><table><thead><tr><th>學生</th><th>身分／背景</th><th>專長</th><th>可投入時間</th><th>偏好</th><th>聯絡</th><th>操作</th></tr></thead><tbody>{filteredStudents.map((student) => <tr key={student.id}><td data-label="學生"><strong>{student.name}</strong><small>{student.school}</small></td><td data-label="背景">{student.identity}<small>{student.background}</small></td><td data-label="專長"><div className="tag-row">{student.skills.map((skill) => <span className="skill-tag" key={skill}>{skill}</span>)}</div></td><td data-label="可投入時間">{student.availability}</td><td data-label="偏好"><span>{student.needsHours ? '需要時數' : '不需時數'}</span><small>{student.isPublic ? '願意公開' : '不公開'}</small></td><td data-label="聯絡"><span className="contact-cell">{student.contact}</span></td><td data-label="操作" className="admin-action-cell"><button className="delete-row-button" type="button" disabled={deletingStudentId === student.id} onClick={() => handleDeleteStudent(student)} aria-label={`刪除${student.name}的學生名單資料`}>{deletingStudentId === student.id ? '刪除中…' : '刪除名單'}</button><small>不刪報名紀錄</small></td></tr>)}</tbody></table>{!filteredStudents.length && <Empty />}</div>}
 
           {tab === 'applications' && <div className="applications-grid">{filteredApplications.map((application) => <article className="application-card" key={application.id}><div className="application-head"><span className="avatar">{application.studentName.slice(0, 1)}</span><div><h3>{application.studentName}</h3><small>{formatDate(application.createdAt)} 送出</small></div><span className="skill-tag">{application.skill}</span></div><p>{application.reason}</p><div className="application-task"><small>報名任務</small><Link to={`/tasks/${application.taskId}`}>{taskMap[application.taskId]?.title || '任務已不存在'} ↗</Link></div><div className="application-contact"><span>聯絡方式</span><strong>{application.contact}</strong></div></article>)}{!filteredApplications.length && <Empty />}</div>}
         </div>

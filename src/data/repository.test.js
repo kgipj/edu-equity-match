@@ -25,6 +25,19 @@ describe('LocalStorageRepository', () => {
     expect(repository.getTask(second.id).status).toBe(second.status)
   })
 
+  it('deletes a student record without touching other students', () => {
+    const repository = new LocalStorageRepository(new MemoryStorage())
+    const first = repository.createStudent({ name: '第一位', skills: ['網站協助'] })
+    const second = repository.createStudent({ name: '第二位', skills: ['社群經營'] })
+
+    repository.deleteStudent(first.id)
+
+    const names = repository.getStudents().map((student) => student.name)
+    expect(names).not.toContain('第一位')
+    expect(names).toContain('第二位')
+    expect(repository.getStudents().some((student) => student.id === second.id)).toBe(true)
+  })
+
   it('adds newly seeded tasks without deleting locally created tasks', () => {
     const storage = new MemoryStorage()
     storage.setItem('edu_equity_tasks_v1', JSON.stringify([{ id: 'local-task', title: '自訂任務' }]))

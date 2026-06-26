@@ -161,6 +161,12 @@ export class SupabaseRepository {
     return fromStudent({ ...payload, created_at: new Date().toISOString() })
   }
 
+  async deleteStudent(id) {
+    const { error } = await this.client.from('students').delete().eq('id', id)
+    raise(error)
+    return id
+  }
+
   async createApplication(application) {
     const payload = toApplication(application)
     const { error } = await this.client.from('applications').insert(payload)
