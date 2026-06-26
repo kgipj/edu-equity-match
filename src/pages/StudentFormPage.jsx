@@ -37,7 +37,7 @@ export function StudentFormPage() {
 
   return (
     <>
-      <PageHero eyebrow="學生專長登錄" title="先從你已經會的事開始" description="不需要是教育系，也不需要有完整作品集。告訴我們你的能力與時間，讓合適的教育行動找到你。" aside={<div className="quote-aside">「你的專長，就是推動教育平權的最強外掛。」<small>— TFT 題目解題提醒</small></div>} />
+      <PageHero eyebrow="學生專長登錄" title="先從你已經會的事開始" description="不需要是教育系，也不需要有完整作品集。告訴我們你的能力與時間，讓合適的教育行動找到你。" aside={<div className="quote-aside">「你的專長，就是推動教育平權的最強外掛。」<small>— Teach For Taiwan 為台灣而教</small></div>} />
       <section className="section form-section">
         <div className="container form-layout">
           <aside className="form-sidebar">
