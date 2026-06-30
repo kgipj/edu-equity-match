@@ -87,6 +87,11 @@ export function DataProvider({ children }) {
       return result
     },
     createTask: (data) => createAndRefresh('createTask', data),
+    deleteTask: async (id) => {
+      const result = await repository.deleteTask(id)
+      await refresh()
+      return result
+    },
     createApplication: (data) => createAndRefresh('createApplication', data),
     updateTaskStatus: async (id, status) => {
       const result = await repository.updateTaskStatus(id, status)

@@ -131,6 +131,12 @@ to authenticated
 using (public.is_admin())
 with check (public.is_admin());
 
+drop policy if exists "Authenticated admins can delete tasks" on public.tasks;
+create policy "Authenticated admins can delete tasks"
+on public.tasks for delete
+to authenticated
+using (public.is_admin());
+
 drop policy if exists "Anyone can register consented students" on public.students;
 create policy "Anyone can register consented students"
 on public.students for insert

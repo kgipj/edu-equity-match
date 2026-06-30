@@ -154,6 +154,12 @@ export class SupabaseRepository {
     return fromTask(data)
   }
 
+  async deleteTask(id) {
+    const { error } = await this.client.from('tasks').delete().eq('id', id)
+    raise(error)
+    return id
+  }
+
   async createStudent(student) {
     const payload = toStudent(student)
     const { error } = await this.client.from('students').insert(payload)

@@ -67,6 +67,14 @@ export class LocalStorageRepository {
     return clone(record)
   }
 
+  deleteTask(id) {
+    const nextTasks = this.read('tasks').filter((task) => task.id !== id)
+    const nextApplications = this.read('applications').filter((application) => application.taskId !== id)
+    this.write('tasks', nextTasks)
+    this.write('applications', nextApplications)
+    return id
+  }
+
   createApplication(application) {
     const record = { ...application, id: makeId('application'), createdAt: new Date().toISOString() }
     this.write('applications', [record, ...this.read('applications')])

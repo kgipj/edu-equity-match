@@ -20,6 +20,7 @@ export function AdminPage() {
     canReset,
     dataError,
     deleteStudent,
+    deleteTask,
     loading,
     resetData,
     session,
@@ -32,6 +33,7 @@ export function AdminPage() {
   const [tab, setTab] = useState('tasks')
   const [query, setQuery] = useState('')
   const [actionError, setActionError] = useState('')
+  const [deletingTaskId, setDeletingTaskId] = useState('')
   const [deletingStudentId, setDeletingStudentId] = useState('')
   const taskMap = useMemo(() => Object.fromEntries(tasks.map((task) => [task.id, task])), [tasks])
   const normalized = query.trim().toLowerCase()
@@ -55,6 +57,22 @@ export function AdminPage() {
       setActionError(error.message || '刪除學生資料失敗，請稍後再試。')
     } finally {
       setDeletingStudentId('')
+    }
+  }
+
+  const handleDeleteTask = async (task) => {
+    const applicationCount = applications.filter((item) => item.taskId === task.id).length
+    const confirmed = window.confirm(`確定要刪除「${task.title}」這個任務嗎？\n\n這會刪除任務名單，也會一併刪除 ${applicationCount} 筆相關報名紀錄。`)
+    if (!confirmed) return
+
+    setActionError('')
+    setDeletingTaskId(task.id)
+    try {
+      await deleteTask(task.id)
+    } catch (error) {
+      setActionError(error.message || '刪除任務失敗，請稍後再試。')
+    } finally {
+      setDeletingTaskId('')
     }
   }
 
@@ -89,7 +107,7 @@ export function AdminPage() {
 
           {loading && <p className="admin-loading">資料讀取中…</p>}
 
-          {tab === 'tasks' && <div className="admin-table-wrap"><table><thead><tr><th>任務</th><th>需要專長</th><th>形式</th><th>報名</th><th>狀態</th><th /></tr></thead><tbody>{filteredTasks.map((task) => <tr key={task.id}><td data-label="任務"><strong>{task.title}</strong><small>{task.organization}</small></td><td data-label="需要專長"><div className="tag-row">{task.skills.map((skill) => <span className="skill-tag" key={skill}>{skill}</span>)}</div></td><td data-label="形式">{task.mode}</td><td data-label="報名">{applications.filter((item) => item.taskId === task.id).length} 人</td><td data-label="狀態"><select className={`status-select ${statusClass(task.status)}`} value={task.status} onChange={(e) => updateTaskStatus(task.id, e.target.value)}>{TASK_STATUSES.map((status) => <option key={status}>{status}</option>)}</select></td><td className="task-link-cell"><Link to={`/tasks/${task.id}`} aria-label={`查看${task.title}`}>↗</Link></td></tr>)}</tbody></table>{!filteredTasks.length && <Empty />}</div>}
+          {tab === 'tasks' && <div className="admin-table-wrap"><table><thead><tr><th>任務</th><th>需要專長</th><th>形式</th><th>報名</th><th>狀態</th><th>查看</th><th>操作</th></tr></thead><tbody>{filteredTasks.map((task) => <tr key={task.id}><td data-label="任務"><strong>{task.title}</strong><small>{task.organization}</small></td><td data-label="需要專長"><div className="tag-row">{task.skills.map((skill) => <span className="skill-tag" key={skill}>{skill}</span>)}</div></td><td data-label="形式">{task.mode}</td><td data-label="報名">{applications.filter((item) => item.taskId === task.id).length} 人</td><td data-label="狀態"><select className={`status-select ${statusClass(task.status)}`} value={task.status} onChange={(e) => updateTaskStatus(task.id, e.target.value)}>{TASK_STATUSES.map((status) => <option key={status}>{status}</option>)}</select></td><td className="task-link-cell"><Link to={`/tasks/${task.id}`} aria-label={`查看${task.title}`}>↗</Link></td><td data-label="操作" className="admin-action-cell"><button className="delete-row-button" type="button" disabled={deletingTaskId === task.id} onClick={() => handleDeleteTask(task)} aria-label={`刪除${task.title}任務`}>{deletingTaskId === task.id ? '刪除中…' : '刪除任務'}</button><small>會刪相關報名</small></td></tr>)}</tbody></table>{!filteredTasks.length && <Empty />}</div>}
 
           {tab === 'students' && <div className="admin-table-wrap"><table><thead><tr><th>學生</th><th>身分／背景</th><th>專長</th><th>可投入時間</th><th>偏好</th><th>聯絡</th><th>操作</th></tr></thead><tbody>{filteredStudents.map((student) => <tr key={student.id}><td data-label="學生"><strong>{student.name}</strong><small>{student.school}</small></td><td data-label="背景">{student.identity}<small>{student.background}</small></td><td data-label="專長"><div className="tag-row">{student.skills.map((skill) => <span className="skill-tag" key={skill}>{skill}</span>)}</div></td><td data-label="可投入時間">{student.availability}</td><td data-label="偏好"><span>{student.needsHours ? '需要時數' : '不需時數'}</span><small>{student.isPublic ? '願意公開' : '不公開'}</small></td><td data-label="聯絡"><span className="contact-cell">{student.contact}</span></td><td data-label="操作" className="admin-action-cell"><button className="delete-row-button" type="button" disabled={deletingStudentId === student.id} onClick={() => handleDeleteStudent(student)} aria-label={`刪除${student.name}的學生名單資料`}>{deletingStudentId === student.id ? '刪除中…' : '刪除名單'}</button><small>不刪報名紀錄</small></td></tr>)}</tbody></table>{!filteredStudents.length && <Empty />}</div>}
 
